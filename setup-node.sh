@@ -148,8 +148,10 @@ echo
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 echo
 
-if curl -fsS "http://127.0.0.1:${EXPORTER_PORT}/metrics" | head -n 20; then
+if curl -fsS "http://127.0.0.1:${EXPORTER_PORT}/metrics" >/dev/null; then
   green "✔ Локально exporter отвечает"
+  echo
+  curl -fsS "http://127.0.0.1:${EXPORTER_PORT}/metrics" | sed -n '1,20p' || true
 else
   red "✖ Локально exporter не отвечает"
   exit 1
