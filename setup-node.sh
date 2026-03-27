@@ -79,9 +79,18 @@ if [[ ! -f "$REMNA_DIR/docker-compose.yml" ]]; then
   blue "Сейчас нужен docker-compose.yml из панели Remnawave:"
   blue "Nodes -> Management -> + -> Copy docker-compose.yml"
   echo
-  yellow "Откроется nano. Вставь туда compose, затем:"
-  yellow "Ctrl+O -> Enter -> Ctrl+X"
-  nano "$REMNA_DIR/docker-compose.yml"
+
+  read -rp "Открыть nano для вставки compose? [Enter=да, n=нет]: " OPEN_NANO
+  OPEN_NANO="${OPEN_NANO:-yes}"
+
+  if [[ "$OPEN_NANO" =~ ^[Nn]$ ]]; then
+    yellow "Вставь docker-compose.yml ниже, затем нажми Ctrl+D:"
+    cat > "$REMNA_DIR/docker-compose.yml"
+  else
+    yellow "Откроется nano. Вставь туда compose, затем:"
+    yellow "Ctrl+O -> Enter -> Ctrl+X"
+    nano "$REMNA_DIR/docker-compose.yml"
+  fi
 else
   yellow "docker-compose.yml уже существует в $REMNA_DIR, пропускаю создание"
 fi
