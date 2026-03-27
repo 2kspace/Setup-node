@@ -11,22 +11,6 @@ yellow() { printf '\033[1;33m%s\033[0m\n' "$*"; }
 red()    { printf '\033[1;31m%s\033[0m\n' "$*"; }
 blue()   { printf '\033[1;34m%s\033[0m\n' "$*"; }
 
-blue "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-blue "➜ Полная подготовка ноды"
-blue "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-read -rp "Страна (пример: 🇳🇱 Нидерланды): " COUNTRY
-read -rp "Хостер (пример: VDSina): " HOSTER
-
-if [[ -z "${COUNTRY// }" || -z "${HOSTER// }" ]]; then
-  red "✖ Страна и хостер не должны быть пустыми"
-  exit 1
-fi
-
-NODE_NAME="${COUNTRY} · ${HOSTER}"
-
-yellow "1) Обновляю пакеты и ставлю базовые утилиты ..."
-
 wait_for_apt_lock() {
   while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
         fuser /var/lib/dpkg/lock >/dev/null 2>&1 || \
@@ -37,6 +21,21 @@ wait_for_apt_lock() {
   done
 }
 
+blue "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+blue "➜ Полная подготовка ноды"
+blue "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+read -rp "Страна (пример: EMOJI Россия): " COUNTRY
+read -rp "Хостер (пример: VDSina): " HOSTER
+
+if [[ -z "${COUNTRY// }" || -z "${HOSTER// }" ]]; then
+  red "✖ Страна и хостер не должны быть пустыми"
+  exit 1
+fi
+
+NODE_NAME="${COUNTRY} · ${HOSTER}"
+
+yellow "1) Обновляю пакеты и ставлю базовые утилиты ..."
 wait_for_apt_lock
 apt update
 
@@ -88,8 +87,15 @@ yellow "5) Готовлю директорию Remnawave Node ..."
 mkdir -p "$REMNA_DIR"
 cd "$REMNA_DIR"
 
-if [[ ! -f "$REMNA_DIR/docker-compose.yml" ]]; then
-  echo
+yellow "IP адреса этой ноды для Remnawave:"
+LOCAL_IPS="$(hostname -I | xargs || true)"
+PUBLIC_IP="$(curl -4 -s --max-time 10 ifconfig.me || true)"
+
+echo "Локальные IP: ${LOCAL_IPS:-не удалось определить}"
+echo "Публичный IP: ${PUBLIC_IP:-не удалось определить}"
+echo
+
+if [[ ! -s "$REMNA_DIR/docker-compose.yml" ]]; then
   blue "Сейчас нужен docker-compose.yml из панели Remnawave:"
   blue "Nodes -> Management -> + -> Copy docker-compose.yml"
   echo
@@ -182,10 +188,7 @@ else
 fi
 echo
 
-yellow "10) Определяю IP адреса ..."
-LOCAL_IPS="$(hostname -I | xargs || true)"
-PUBLIC_IP="$(curl -4 -s --max-time 10 ifconfig.me || true)"
-
+yellow "10) Показываю IP адреса ..."
 echo "Локальные IP: ${LOCAL_IPS:-не удалось определить}"
 echo "Публичный IP: ${PUBLIC_IP:-не удалось определить}"
 echo "Имя ноды: ${NODE_NAME}"
