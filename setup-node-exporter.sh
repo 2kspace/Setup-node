@@ -1,4 +1,3 @@
-cat > /root/setup-node-exporter.sh <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -111,6 +110,3 @@ if [[ -n "${PUBLIC_IP:-}" ]]; then
 else
   yellow "⚠ Не удалось определить публичный IP. Узнай его вручную и вызови register-node.sh на сервере мониторинга."
 fi
-EOF
-
-chmod +x /root/setup-node-exporter.sh && bash /root/setup-node-exporter.sh
