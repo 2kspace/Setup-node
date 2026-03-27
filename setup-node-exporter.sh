@@ -77,7 +77,7 @@ else
   yellow "⚠ ufw не установлен, firewall не трогаю"
 fi
 
-yellow "5) Локальная проверка exporter ..."
+yellow "5) Проверяю node_exporter ..."
 echo
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 echo
@@ -90,7 +90,13 @@ else
 fi
 
 echo
-ss -tulpn | grep ":${EXPORTER_PORT}" || true
+if ss -tulpn | grep -q ":${EXPORTER_PORT}"; then
+  ss -tulpn | grep ":${EXPORTER_PORT}"
+  green "✔ Порт ${EXPORTER_PORT} слушается"
+else
+  red "✖ Порт ${EXPORTER_PORT} не слушается"
+  exit 1
+fi
 echo
 
 yellow "6) Определяю IP адреса ..."
