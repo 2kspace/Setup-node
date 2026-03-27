@@ -27,6 +27,12 @@ NODE_NAME="${COUNTRY} · ${HOSTER}"
 
 yellow "1) Обновляю пакеты и ставлю базовые утилиты ..."
 apt update
+yellow "Жду, если dpkg/apt занят фоновыми обновлениями ..."
+while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
+      fuser /var/lib/dpkg/lock >/dev/null 2>&1; do
+  echo "dpkg lock занят, жду 3 сек..."
+  sleep 3
+done
 apt install -y curl ca-certificates fail2ban
 
 green "✔ Базовые пакеты установлены"
