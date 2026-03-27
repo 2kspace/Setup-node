@@ -26,13 +26,21 @@ fi
 NODE_NAME="${COUNTRY} · ${HOSTER}"
 
 yellow "1) Обновляю пакеты и ставлю базовые утилиты ..."
+
+wait_for_apt_lock() {
+  while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
+        fuser /var/lib/dpkg/lock >/dev/null 2>&1 || \
+        fuser /var/lib/apt/lists/lock >/dev/null 2>&1 || \
+        fuser /var/cache/apt/archives/lock >/dev/null 2>&1; do
+    echo "dpkg/apt lock занят, жду 3 сек..."
+    sleep 3
+  done
+}
+
+wait_for_apt_lock
 apt update
-yellow "Жду, если dpkg/apt занят фоновыми обновлениями ..."
-while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
-      fuser /var/lib/dpkg/lock >/dev/null 2>&1; do
-  echo "dpkg lock занят, жду 3 сек..."
-  sleep 3
-done
+
+wait_for_apt_lock
 apt install -y curl ca-certificates fail2ban
 
 green "✔ Базовые пакеты установлены"
